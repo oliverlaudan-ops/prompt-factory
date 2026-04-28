@@ -1,0 +1,91 @@
+"use client";
+
+import { Prompt } from "@prisma/client";
+import { useState } from "react";
+import { Copy, Star, StarOff, Edit, Trash2 } from "lucide-react";
+
+interface PromptCardProps {
+  prompt: Prompt;
+}
+
+export default function PromptCard({ prompt }: PromptCardProps) {
+  const [isFavorite, setIsFavorite] = useState(prompt.isFavorite);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(prompt.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleToggleFavorite = async () => {
+    // TODO: API call to toggle favorite
+    setIsFavorite(!isFavorite);
+  };
+
+  const tags = prompt.tags?.split(",").map((tag) => tag.trim()).filter(Boolean) || [];
+
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border border-slate-200 dark:border-slate-700">
+      <div className="flex items-start justify-between mb-3">
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+          {prompt.title}
+        </h3>
+        <button
+          onClick={handleToggleFavorite}
+          className="text-slate-400 hover:text-yellow-500 transition-colors"
+        >
+          {isFavorite ? (
+            <Star className="w-5 h-5 fill-yellow-500 text-yellow-500" />
+          ) : (
+            <StarOff className="w-5 h-5" />
+          )}
+        </button>
+      </div>
+
+      {prompt.description && (
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+          {prompt.description}
+        </p>
+      )}
+
+      <div className="bg-slate-50 dark:bg-slate-900 rounded p-3 mb-3">
+        <p className="text-sm text-slate-700 dark:text-slate-300 font-mono whitespace-pre-wrap line-clamp-4">
+          {prompt.content}
+        </p>
+      </div>
+
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {tags.map((tag, index) => (
+            <span
+              key={index}
+              className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-700">
+        <div className="flex gap-2">
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors"
+          >
+            <Copy className="w-4 h-4" />
+            {copied ? "Kopiert!" : "Kopieren"}
+          </button>
+          <button className="flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors">
+            <Edit className="w-4 h-4" />
+            Bearbeiten
+          </button>
+        </div>
+        <button className="text-slate-400 hover:text-red-500 transition-colors">
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
