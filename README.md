@@ -15,7 +15,7 @@ Eine moderne Web-App zur Verwaltung deiner Prompt-Bibliothek.
 ## Tech Stack
 
 - **Framework:** Next.js 14 (App Router)
-- **Database:** SQLite mit Prisma ORM
+- **Database:** PostgreSQL mit Prisma ORM (Vercel Postgres empfohlen)
 - **Styling:** Tailwind CSS
 - **Icons:** Lucide React
 - **Deploy:** Vercel-ready

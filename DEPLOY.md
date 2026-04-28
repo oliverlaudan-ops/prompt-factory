@@ -77,8 +77,21 @@ Dann: `npx prisma db push` auf der Production-DB ausführen.
 
 In Vercel Project Settings → Environment Variables:
 ```
-DATABASE_URL=your-database-url
+DATABASE_URL=your-vercel-postgres-url
 ```
+
+**Vercel Postgres erstellen:**
+1. Vercel Dashboard → Storage → Create Database → Postgres
+2. Database name: `prompt-factory`
+3. Connect to your Vercel project
+4. `DATABASE_URL` wird automatisch hinzugefügt!
+5. In deinem Project: `npx prisma db push` ausführen (über Vercel CLI oder lokal)
+
+### Alternative: Neon (kostenloses Postgres)
+1. https://neon.tech → Sign up
+2. New Project erstellen
+3. Connection String kopieren
+4. Als `DATABASE_URL` in Vercel eintragen
 
 ---
 
