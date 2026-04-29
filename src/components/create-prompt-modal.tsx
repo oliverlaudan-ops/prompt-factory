@@ -15,10 +15,14 @@ export default function CreatePromptModal({ isOpen, onClose }: CreatePromptModal
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
+    setSuccess(false);
 
     try {
       const response = await fetch("/api/prompts", {
@@ -33,14 +37,26 @@ export default function CreatePromptModal({ isOpen, onClose }: CreatePromptModal
         }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        // Reload page to show new prompt
-        window.location.reload();
+        setSuccess(true);
+        // Clear form
+        setTitle("");
+        setDescription("");
+        setContent("");
+        setCategory("");
+        setTags("");
+        // Close modal after short delay
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       } else {
-        console.error("Failed to create prompt");
+        setError(data.error || "Fehler beim Erstellen des Prompts");
       }
     } catch (error) {
       console.error("Error creating prompt:", error);
+      setError("Netzwerkfehler - bitte versuche es erneut");
     } finally {
       setIsSubmitting(false);
     }
@@ -64,6 +80,16 @@ export default function CreatePromptModal({ isOpen, onClose }: CreatePromptModal
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {error && (
+            <div className="p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-300 text-sm">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-lg text-green-700 dark:text-green-300 text-sm">
+              Prompt erfolgreich erstellt! Seite wird neu geladen...
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Titel *
