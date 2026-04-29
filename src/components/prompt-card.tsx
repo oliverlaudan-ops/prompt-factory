@@ -3,6 +3,7 @@
 import { Prompt } from "@prisma/client";
 import { useState } from "react";
 import { Copy, Star, StarOff, Edit, Trash2 } from "lucide-react";
+import EditPromptModal from "./edit-prompt-modal";
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -11,6 +12,7 @@ interface PromptCardProps {
 export default function PromptCard({ prompt }: PromptCardProps) {
   const [isFavorite, setIsFavorite] = useState(prompt.isFavorite);
   const [copied, setCopied] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(prompt.content);
@@ -18,9 +20,46 @@ export default function PromptCard({ prompt }: PromptCardProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleToggleFavorite = async () => {
-    // TODO: API call to toggle favorite
-    setIsFavorite(!isFavorite);
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const response = await fetch(`/api/prompts/${prompt.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isFavorite: !isFavorite }),
+      });
+
+      if (response.ok) {
+        setIsFavorite(!isFavorite);
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("Möchtest du diesen Prompt wirklich löschen?")) return;
+
+    try {
+      const response = await fetch(`/api/prompts/${prompt.id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        alert("Fehler beim Löschen des Prompts");
+      }
+    } catch (error) {
+      console.error("Error deleting prompt:", error);
+      alert("Netzwerkfehler - bitte versuche es erneut");
+    }
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditing(true);
   };
 
   const tags = prompt.tags?.split(",").map((tag) => tag.trim()).filter(Boolean) || [];
@@ -77,15 +116,29 @@ export default function PromptCard({ prompt }: PromptCardProps) {
             <Copy className="w-4 h-4" />
             {copied ? "Kopiert!" : "Kopieren"}
           </button>
-          <button className="flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors">
-            <Edit className="w-4 h-4" />
-            Bearbeiten
-          </button>
+        <button
+          onClick={handleEdit}
+          className="flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors"
+        >
+          <Edit className="w-4 h-4" />
+          Bearbeiten
+        </button>
         </div>
-        <button className="text-slate-400 hover:text-red-500 transition-colors">
+        <button
+          onClick={handleDelete}
+          className="text-slate-400 hover:text-red-500 transition-colors"
+        >
           <Trash2 className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Edit Modal */}
+      {isEditing && (
+        <EditPromptModal
+          prompt={prompt}
+          onClose={() => setIsEditing(false)}
+        />
+      )}
     </div>
   );
 }
