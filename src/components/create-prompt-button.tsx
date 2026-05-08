@@ -29,7 +29,7 @@ export default function CreatePromptButton() {
         Neuer Prompt
       </button>
 
-      {session && <CreatePromptModal isOpen={isOpen} onClose={() => setIsOpen(false)} /><}
+      {session && <CreatePromptModal isOpen={isOpen} onClose={() => setIsOpen(false)} />}
     </>
   );
 }

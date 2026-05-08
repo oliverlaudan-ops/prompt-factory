@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import PromptList from "@/components/prompt-list";
 import CreatePromptButton from "@/components/create-prompt-button";
 import { unstable_noStore as noStore } from "next/cache";
-import { getServerSession } from "next-auth";
+import { auth } from "@/api/auth/[...nextauth]/route";
 import Link from "next/link";
 
 async function getPrompts(userId?: string) {
@@ -26,7 +26,7 @@ async function getPrompts(userId?: string) {
 }
 
 export default async function Home() {
-  const session = await getServerSession();
+  const session = await auth();
   const prompts = await getPrompts(session?.user?.id);
 
   return (

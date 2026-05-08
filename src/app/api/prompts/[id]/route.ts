@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
+import { auth } from "@/api/auth/[...nextauth]/route";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -9,7 +9,7 @@ interface RouteParams {
 // GET single prompt
 export async function GET(request: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     const { id } = await params;
     
     const prompt = await prisma.prompt.findUnique({
@@ -44,7 +44,7 @@ export async function GET(request: Request, { params }: RouteParams) {
 // PUT update prompt
 export async function PUT(request: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -102,7 +102,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
 // DELETE prompt
 export async function DELETE(request: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     
     if (!session?.user?.id) {
       return NextResponse.json(
