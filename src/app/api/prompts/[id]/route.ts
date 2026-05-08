@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/api/auth/[...nextauth]/route";
+import { auth } from "@/lib/auth";
 
 interface RouteParams {
   params: Promise<{ id: string }>;

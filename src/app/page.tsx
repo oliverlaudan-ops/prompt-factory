@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import PromptList from "@/components/prompt-list";
 import CreatePromptButton from "@/components/create-prompt-button";
 import { unstable_noStore as noStore } from "next/cache";
-import { auth } from "@/api/auth/[...nextauth]/route";
+import { auth } from "@/lib/auth";
 import Link from "next/link";
 
 async function getPrompts(userId?: string) {
