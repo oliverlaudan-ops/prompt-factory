@@ -39,6 +39,7 @@ export default function EditPromptModal({ prompt, onClose }: EditPromptModalProp
       });
 
       if (response.ok) {
+        onClose();
         window.location.reload();
       } else {
         const data = await response.json();

@@ -11,6 +11,7 @@ interface PromptCardProps {
 
 export default function PromptCard({ prompt }: PromptCardProps) {
   const [isFavorite, setIsFavorite] = useState(prompt.isFavorite);
+  const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -22,18 +23,35 @@ export default function PromptCard({ prompt }: PromptCardProps) {
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isUpdatingFavorite) return;
+    
+    const newFavoriteStatus = !isFavorite;
+    setIsUpdatingFavorite(true);
     try {
       const response = await fetch(`/api/prompts/${prompt.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isFavorite: !isFavorite }),
+        body: JSON.stringify({
+          title: prompt.title,
+          description: prompt.description,
+          content: prompt.content,
+          category: prompt.category,
+          tags: prompt.tags,
+          isFavorite: newFavoriteStatus,
+        }),
       });
 
       if (response.ok) {
-        setIsFavorite(!isFavorite);
+        setIsFavorite(newFavoriteStatus);
+      } else {
+        const data = await response.json().catch(() => ({}));
+        alert(`Fehler beim Markieren als Favorit: ${data.error || "Unbekannter Fehler"}`);
       }
     } catch (error) {
       console.error("Error toggling favorite:", error);
+      alert("Netzwerkfehler - bitte versuche es erneut");
+    } finally {
+      setIsUpdatingFavorite(false);
     }
   };
 
@@ -72,7 +90,8 @@ export default function PromptCard({ prompt }: PromptCardProps) {
         </h3>
         <button
           onClick={handleToggleFavorite}
-          className="text-slate-400 hover:text-yellow-500 transition-colors"
+          disabled={isUpdatingFavorite}
+          className={`text-slate-400 hover:text-yellow-500 transition-colors ${isUpdatingFavorite ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isFavorite ? (
             <Star className="w-5 h-5 fill-yellow-500 text-yellow-500" />

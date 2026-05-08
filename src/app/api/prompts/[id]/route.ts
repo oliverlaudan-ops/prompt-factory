@@ -41,12 +41,12 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const prompt = await prisma.prompt.update({
       where: { id },
       data: {
-        title: title ?? undefined,
-        description: description ?? null,
-        content: content ?? undefined,
-        category: category ?? null,
-        tags: tags ?? null,
-        isFavorite: isFavorite ?? undefined,
+        title,
+        description,
+        content,
+        category,
+        tags,
+        isFavorite,
       },
     });
 
