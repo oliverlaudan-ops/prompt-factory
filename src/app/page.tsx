@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import PromptList from "@/components/prompt-list";
 import CreatePromptButton from "@/components/create-prompt-button";
+import { unstable_noStore as noStore } from "next/cache";
 
 async function getPrompts() {
+  noStore(); // Disable caching for this data fetch
   const prompts = await prisma.prompt.findMany({
     orderBy: { createdAt: "desc" },
   });
