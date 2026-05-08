@@ -7,13 +7,17 @@ import EditPromptModal from "./edit-prompt-modal";
 
 interface PromptCardProps {
   prompt: Prompt;
+  userId?: string;
 }
 
-export default function PromptCard({ prompt }: PromptCardProps) {
+export default function PromptCard({ prompt, userId }: PromptCardProps) {
   const [isFavorite, setIsFavorite] = useState(prompt.isFavorite);
   const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Check if current user owns this prompt
+  const isOwner = userId === prompt.userId;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(prompt.content);
@@ -135,20 +139,24 @@ export default function PromptCard({ prompt }: PromptCardProps) {
             <Copy className="w-4 h-4" />
             {copied ? "Kopiert!" : "Kopieren"}
           </button>
-        <button
-          onClick={handleEdit}
-          className="flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors"
-        >
-          <Edit className="w-4 h-4" />
-          Bearbeiten
-        </button>
+        {isOwner && (
+          <button
+            onClick={handleEdit}
+            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors"
+          >
+            <Edit className="w-4 h-4" />
+            Bearbeiten
+          </button>
+        )}
         </div>
-        <button
-          onClick={handleDelete}
-          className="text-slate-400 hover:text-red-500 transition-colors"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        {isOwner && (
+          <button
+            onClick={handleDelete}
+            className="text-slate-400 hover:text-red-500 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Edit Modal */}

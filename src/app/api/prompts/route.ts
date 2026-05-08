@@ -1,10 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession();
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Nicht autorisiert. Bitte melde dich an." },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
-    const { title, description, content, category, tags } = body;
+    const { title, description, content, category, tags, isPublic } = body;
 
     if (!title || !content) {
       return NextResponse.json(
@@ -15,11 +25,13 @@ export async function POST(request: Request) {
 
     const prompt = await prisma.prompt.create({
       data: {
+        userId: session.user.id,
         title,
         description: description || null,
         content,
         category: category || null,
         tags: tags || null,
+        isPublic: isPublic || false,
       },
     });
 
@@ -35,9 +47,24 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const prompts = await prisma.prompt.findMany({
-      orderBy: { createdAt: "desc" },
-    });
+    const session = await getServerSession();
+    
+    let prompts;
+    
+    if (session?.user?.id) {
+      // Logged in: show user's own prompts
+      prompts = await prisma.prompt.findMany({
+        where: { userId: session.user.id },
+        orderBy: { createdAt: "desc" },
+      });
+    } else {
+      // Not logged in: show public prompts only
+      prompts = await prisma.prompt.findMany({
+        where: { isPublic: true },
+        orderBy: { createdAt: "desc" },
+      });
+    }
+    
     return NextResponse.json(prompts);
   } catch (error) {
     console.error("Error fetching prompts:", error);
