@@ -17,7 +17,7 @@ export default function PromptList({ prompts, userId }: PromptListProps) {
 
   // Alle einzigartigen Kategorien extrahieren
   const categories = useMemo(() => {
-    const cats = prompts.map((p) => p.category).filter(Boolean);
+    const cats = prompts.map((p) => p.category).filter((c): c is string => Boolean(c));
     return ["all", ...Array.from(new Set(cats))];
   }, [prompts]);
 
