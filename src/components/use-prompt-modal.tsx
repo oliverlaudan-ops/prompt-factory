@@ -2,7 +2,7 @@
 
 import { Prompt } from "@prisma/client";
 import { useState, useMemo } from "react";
-import { X, Copy, Check, Sparkles } from "lucide-react";
+import { X, Copy, Check, Sparkles, AlertCircle } from "lucide-react";
 
 interface UsePromptModalProps {
   prompt: Prompt;
@@ -13,6 +13,7 @@ export default function UsePromptModal({ prompt, onClose }: UsePromptModalProps)
   const [variables, setVariables] = useState<Record<string, string>>({});
   const [result, setResult] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Variablen aus Content extrahieren ({{VARIABLE_NAME}} Pattern)
   const extractedVariables = useMemo(() => {
@@ -25,6 +26,15 @@ export default function UsePromptModal({ prompt, onClose }: UsePromptModalProps)
 
   // Content mit Variablen ersetzen
   const applyVariables = () => {
+    // Prüfen ob alle Variablen ausgefüllt sind
+    const missingVars = extractedVariables.filter(key => !variables[key]?.trim());
+    
+    if (missingVars.length > 0) {
+      setError(`Bitte fülle alle Felder aus. Fehlend: ${missingVars.join(', ')}`);
+      return;
+    }
+    
+    setError(null);
     let content = prompt.content;
     
     Object.entries(variables).forEach(([key, value]) => {
@@ -33,7 +43,6 @@ export default function UsePromptModal({ prompt, onClose }: UsePromptModalProps)
     });
     
     setResult(content);
-    setCopied(false);
   };
 
   const handleCopy = async () => {
@@ -58,9 +67,14 @@ export default function UsePromptModal({ prompt, onClose }: UsePromptModalProps)
   const handleInputChange = (key: string, value: string) => {
     setVariables(prev => ({ ...prev, [key]: value }));
     setResult(null);
+    if (error) setError(null);
   };
 
-  const allFilled = extractedVariables.every(key => variables[key]?.trim());
+  // Fortschrittsanzeige
+  const filledCount = extractedVariables.filter(key => variables[key]?.trim()).length;
+  const progressPercent = extractedVariables.length > 0 
+    ? Math.round((filledCount / extractedVariables.length) * 100) 
+    : 100;
 
   return (
     <div
@@ -95,31 +109,62 @@ export default function UsePromptModal({ prompt, onClose }: UsePromptModalProps)
           {/* Variablen-Formular */}
           {extractedVariables.length > 0 ? (
             <div>
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
-                Variablen ausfüllen ({extractedVariables.length})
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Variablen ausfüllen
+                </h3>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {filledCount} von {extractedVariables.length} ({progressPercent}%)
+                </span>
+              </div>
+
+              {/* Fortschrittsbalken */}
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mb-4">
+                <div 
+                  className={`h-2 rounded-full transition-all ${
+                    progressPercent === 100 ? 'bg-green-500' : 'bg-blue-500'
+                  }`}
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+
               <div className="grid gap-4 md:grid-cols-2">
                 {extractedVariables.map((key) => (
                   <div key={key}>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                       {key}
+                      {variables[key]?.trim() && (
+                        <Check className="w-3 h-3 inline ml-1 text-green-500" />
+                      )}
                     </label>
                     <input
                       type="text"
                       value={variables[key] || ""}
                       onChange={(e) => handleInputChange(key, e.target.value)}
                       placeholder={`${key} eingeben...`}
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        variables[key]?.trim()
+                          ? 'border-green-300 dark:border-green-700'
+                          : 'border-slate-300 dark:border-slate-600'
+                      }`}
                     />
                   </div>
                 ))}
               </div>
 
+              {/* Fehlermeldung */}
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                </div>
+              )}
+
               <button
                 onClick={applyVariables}
-                disabled={!allFilled}
-                className="mt-4 w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors font-medium"
+                className="mt-4 w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
               >
+                <Sparkles className="w-5 h-5" />
                 Prompt generieren
               </button>
             </div>
