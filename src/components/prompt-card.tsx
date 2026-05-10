@@ -2,8 +2,9 @@
 
 import { Prompt } from "@prisma/client";
 import { useState } from "react";
-import { Copy, Star, StarOff, Edit, Trash2 } from "lucide-react";
+import { Copy, Star, StarOff, Edit, Trash2, Eye } from "lucide-react";
 import EditPromptModal from "./edit-prompt-modal";
+import PromptPreviewModal from "./prompt-preview-modal";
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -15,6 +16,7 @@ export default function PromptCard({ prompt, userId }: PromptCardProps) {
   const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Check if current user owns this prompt
   const isOwner = userId === prompt.userId;
@@ -79,6 +81,11 @@ export default function PromptCard({ prompt, userId }: PromptCardProps) {
     }
   };
 
+  const handlePreview = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsPreviewOpen(true);
+  };
+
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsEditing(true);
@@ -111,7 +118,7 @@ export default function PromptCard({ prompt, userId }: PromptCardProps) {
         </p>
       )}
 
-      <div className="bg-slate-50 dark:bg-slate-900 rounded p-3 mb-3">
+      <div className="bg-slate-50 dark:bg-slate-900 rounded p-3 mb-3 cursor-pointer" onClick={handlePreview}>
         <p className="text-sm text-slate-700 dark:text-slate-300 font-mono whitespace-pre-wrap line-clamp-4">
           {prompt.content}
         </p>
@@ -132,6 +139,13 @@ export default function PromptCard({ prompt, userId }: PromptCardProps) {
 
       <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-700">
         <div className="flex gap-2">
+          <button
+            onClick={handlePreview}
+            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors"
+          >
+            <Eye className="w-4 h-4" />
+            Vorschau
+          </button>
           <button
             onClick={handleCopy}
             className="flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors"
@@ -164,6 +178,14 @@ export default function PromptCard({ prompt, userId }: PromptCardProps) {
         <EditPromptModal
           prompt={prompt}
           onClose={() => setIsEditing(false)}
+        />
+      )}
+
+      {/* Preview Modal */}
+      {isPreviewOpen && (
+        <PromptPreviewModal
+          prompt={prompt}
+          onClose={() => setIsPreviewOpen(false)}
         />
       )}
     </div>
