@@ -63,10 +63,10 @@ model Prompt {
   id          String   @id @default(cuid())
   userId      String   // Owner des Prompts
   title       String
-  description String?
-  content     String
+  description String?  @db.Text
+  content     String   @db.Text
   category    String?
-  tags        String?
+  tags        String?  @db.Text
   isFavorite  Boolean  @default(false)
   isPublic    Boolean  @default(false)  // Optional: für öffentliche Prompts
   createdAt   DateTime @default(now())
