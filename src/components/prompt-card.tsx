@@ -2,9 +2,10 @@
 
 import { Prompt } from "@prisma/client";
 import { useState } from "react";
-import { Copy, Star, StarOff, Edit, Trash2, Eye } from "lucide-react";
+import { Copy, Star, StarOff, Edit, Trash2, Eye, Wand2 } from "lucide-react";
 import EditPromptModal from "./edit-prompt-modal";
 import PromptPreviewModal from "./prompt-preview-modal";
+import UsePromptModal from "./use-prompt-modal";
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -17,6 +18,7 @@ export default function PromptCard({ prompt, userId }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isUsePromptOpen, setIsUsePromptOpen] = useState(false);
 
   // Check if current user owns this prompt
   const isOwner = userId === prompt.userId;
@@ -86,6 +88,11 @@ export default function PromptCard({ prompt, userId }: PromptCardProps) {
     setIsPreviewOpen(true);
   };
 
+  const handleUsePrompt = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsUsePromptOpen(true);
+  };
+
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsEditing(true);
@@ -140,6 +147,13 @@ export default function PromptCard({ prompt, userId }: PromptCardProps) {
       <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-700">
         <div className="flex gap-2">
           <button
+            onClick={handleUsePrompt}
+            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 rounded transition-colors"
+          >
+            <Wand2 className="w-4 h-4" />
+            Verwenden
+          </button>
+          <button
             onClick={handlePreview}
             className="flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors"
           >
@@ -186,6 +200,14 @@ export default function PromptCard({ prompt, userId }: PromptCardProps) {
         <PromptPreviewModal
           prompt={prompt}
           onClose={() => setIsPreviewOpen(false)}
+        />
+      )}
+
+      {/* Use Prompt Modal */}
+      {isUsePromptOpen && (
+        <UsePromptModal
+          prompt={prompt}
+          onClose={() => setIsUsePromptOpen(false)}
         />
       )}
     </div>
