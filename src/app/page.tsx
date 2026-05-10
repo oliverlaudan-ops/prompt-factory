@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import PromptList from "@/components/prompt-list";
 import CreatePromptButton from "@/components/create-prompt-button";
+import ExportImportButton from "@/components/export-import-button";
 import { unstable_noStore as noStore } from "next/cache";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
@@ -46,12 +47,15 @@ export default async function Home() {
             </div>
             <div className="flex items-center gap-4">
               {session ? (
-                <Link
-                  href="/api/auth/signout"
-                  className="px-4 py-2 text-sm bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg transition-colors"
-                >
-                  Abmelden
-                </Link>
+                <>
+                  <ExportImportButton />
+                  <Link
+                    href="/api/auth/signout"
+                    className="px-4 py-2 text-sm bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg transition-colors"
+                  >
+                    Abmelden
+                  </Link>
+                </>
               ) : (
                 <Link
                   href="/auth/signin"

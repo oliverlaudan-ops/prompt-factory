@@ -1,7 +1,7 @@
 # 🦄 Prompt Factory Roadmap
 
 > **Letztes Update:** 2026-05-10  
-> **Status:** In Entwicklung  
+> **Status:** Phase 1 abgeschlossen ✅  
 > **Produkt:** https://prompts.future-pulse.de
 
 ---
@@ -12,7 +12,7 @@
 |---|---------|---------|-----------|--------|
 | 1.1 | **Prompt-Suche & Filter** | 🟢 Niedrig | 🔴 Hoch | ✅ Fertig |
 | 1.2 | **Copy-Button & Vorschau** | 🟢 Niedrig | 🔴 Hoch | ✅ Fertig |
-| 1.3 | **Export/Import (JSON)** | 🟡 Mittel | 🟠 Mittel | 📋 Backlog |
+| 1.3 | **Export/Import (JSON)** | 🟡 Mittel | 🟠 Mittel | ✅ Fertig |
 
 ### Details Phase 1
 
